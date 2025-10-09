@@ -1,6 +1,6 @@
 # EpiSBI
 
-**EpiSBI** is an R toolbox designed to streamline Bayesian parameter estimation and forecasting in ordinary differential equation (ODE) models, particularly for infectious disease applications. This toolbox simplifies the complex process of Bayesian inference by automating the generation of Stan files, enabling users to configure models, define priors, and analyze results efficiently, even with minimal programming expertise.
+**EpiSBI** is 
 
 
 ## Features
