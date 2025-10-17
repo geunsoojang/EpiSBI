@@ -4,9 +4,13 @@
 
 
 **Data set**
+
 Model1: SEIR model
+
 Model2: SEIAR model
+
 Model3: Ebola model
+
 Model4: SIRTEM model
 
 
