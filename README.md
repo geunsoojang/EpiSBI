@@ -9,14 +9,11 @@
 - **PNPE**: Preconditioned Neural Posterior Estimation
 
 
-**Data set**
+## Epidemic Model
 
-Model1: SEIR model
-
-Model2: SEIAR model
-
-Model3: Ebola model
-
-Model4: SIRTEM model
+- Model1: SEIR model
+- Model2: SEIAR model
+- Model3: Ebola model
+- Model4: SIRTEM model
 
 
