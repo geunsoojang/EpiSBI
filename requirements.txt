@@ -1,0 +1,9 @@
+```text
+torch>=2.0.0
+sbi>=0.25.0
+pyabc
+scipy
+numpy
+pandas
+matplotlib
+seaborn
