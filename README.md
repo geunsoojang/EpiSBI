@@ -6,7 +6,7 @@
 - **ABC**: Approximate Bayesian Computation (via `pyabc`)
 - **NPE**: Neural Posterior Estimation
 - **NPE-LSTM**: NPE with Time-Series Embedding (LSTM)
-- **PNPE**: Preconditioned Neural Posterior Estimation for improved identifiability
+- **PNPE**: Preconditioned Neural Posterior Estimation
 
 
 **Data set**
