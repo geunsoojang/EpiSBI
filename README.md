@@ -2,6 +2,12 @@
 **Data and Code Repository for the Manuscript:**  
 *A comparative study of simulation-based inference methods for epidemic models with identifiability considerations*  
 
+## Supported Methods
+- **ABC**: Approximate Bayesian Computation (via `pyabc`)
+- **NPE**: Neural Posterior Estimation
+- **NPE-LSTM**: NPE with Time-Series Embedding (LSTM)
+- **PNPE**: Preconditioned Neural Posterior Estimation for improved identifiability
+
 
 **Data set**
 
