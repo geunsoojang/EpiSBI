@@ -20,4 +20,5 @@ The repository includes four compartmental models of varying complexity to bench
 3. **Model 3: Ebola Model** – A specialized model tailored to the transmission dynamics of the Ebola virus. (Legrand et al. [Understanding the dynamics of Ebola epidemics](https://pmc.ncbi.nlm.nih.gov/articles/PMC2870608/))
 4. **Model 4: SIRTEM Model** – A complex model considering multiple transmission routes and immunity states. (Azad et al. [SIRTEM: Spatially Informed Rapid Testing for Epidemic Modeling and Response to COVID-19](https://dl.acm.org/doi/10.1145/3555310))
 
+## Citation
 
