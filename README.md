@@ -16,9 +16,9 @@ We implement and compare four distinct inference methods. Each is integrated wit
 ## Epidemic Models
 The repository includes four compartmental models of varying complexity to benchmark the inference algorithms: 
 1. **Model 1: SEIR Model** – Standard Susceptible-Exposed-Infectious-Recovered dynamics. (Brauer et al. [Mathematical models in epidemiology](https://link.springer.com/book/10.1007/978-1-4939-9828-9))
-2. **Model 2: SEIAR Model** – Includes an Asymptomatic infectious class. (Chowell et al. [Comparative estimation of the reproduction number for pandemic influenza from daily case notification data](https://royalsocietypublishing.org/rsif/article/4/12/155/65217/Comparative-estimation-of-the-reproduction-number))
-3. **Model 3: Ebola Model** – A specialized model tailored to the transmission dynamics of the Ebola virus. (Legrand et al. [Understanding the dynamics of Ebola epidemics](https://pmc.ncbi.nlm.nih.gov/articles/PMC2870608/))
-4. **Model 4: SIRTEM Model** – A complex model considering multiple transmission routes and immunity states. (Azad et al. [SIRTEM: Spatially Informed Rapid Testing for Epidemic Modeling and Response to COVID-19](https://dl.acm.org/doi/10.1145/3555310))
+2. **Model 3: Ebola Model** – A specialized model tailored to the transmission dynamics of the Ebola virus. (Legrand et al. [Understanding the dynamics of Ebola epidemics](https://pmc.ncbi.nlm.nih.gov/articles/PMC2870608/))
+3. **Model 4: SIRTEM Model** – A complex model considering multiple transmission routes and immunity states. (Azad et al. [SIRTEM: Spatially Informed Rapid Testing for Epidemic Modeling and Response to COVID-19](https://dl.acm.org/doi/10.1145/3555310))
+  
 
 ## Citation
 
