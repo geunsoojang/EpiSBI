@@ -21,4 +21,4 @@ The repository includes four compartmental models of varying complexity to bench
   
 
 ## Citation
-
+Jang G, Candan KS, Chowell G. A comparative study of simulation-based inference methods for epidemic models with identifiability considerations. PLOS Computational Biology. 2026 Jun 2;22(6):e1014364.
