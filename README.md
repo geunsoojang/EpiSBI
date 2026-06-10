@@ -9,7 +9,7 @@ We implement and compare four distinct inference methods. Each is integrated wit
 | Algorithm | Method Class | Core Toolkit | Description |
 | :--- | :--- | :--- | :--- |
 | **ABC** | Rejection-based | [**pyABC**](https://github.com/icb-dcm/pyabc) | Sequential Monte Carlo (SMC-ABC) for high-performance approximate Bayesian inference. |
-| **NPE** | Neural Inference | [**sbi**](https://github.com/sbi-dev/sbi) | Neural Posterior Estimation using Normalizing Flows to learn the posterior $p(\theta|x)$ directly. |
+| **NPE** | Neural Inference | [**sbi**](https://github.com/sbi-dev/sbi) | Neural Posterior Estimation using Normalizing Flows to learn the posterior p(theta|x) directly. |
 | **NPE-LSTM** | Neural Inference | [**sbi**](https://github.com/sbi-dev/sbi) | NPE with an LSTM embedding network to automatically extract features from time-series trajectories. |
 | **PNPE** | Neural Inference | Custom / **sbi** | Preconditioned NPE designed to improve convergence in models with complex identifiability constraints. |
 
