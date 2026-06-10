@@ -1,24 +1,138 @@
-# Simulation-Based Inference for Epidemic Models
-**Data and Code Repository for the Manuscript:**  
-*A comparative study of simulation-based inference methods for epidemic models with identifiability considerations*  
+# EpiSBI
 
+Simulation-based inference tools and tutorials for epidemic models.
 
-## Inference Algorithms & Toolkits
+This repository accompanies the manuscript *A comparative study of simulation-based inference methods for epidemic models with identifiability considerations* and also provides a reusable Python package, `episbi`, for running and evaluating simulation-based inference workflows.
 
-We implement and compare four distinct inference methods. Each is integrated with standard libraries to ensure robustness and reproducibility.
-| Algorithm | Method Class | Core Toolkit | Description |
-| :--- | :--- | :--- | :--- |
-| **ABC** | Rejection-based | [**pyABC**](https://github.com/icb-dcm/pyabc) | Sequential Monte Carlo (SMC-ABC) for high-performance approximate Bayesian inference. |
-| **NPE** | Neural Inference | [**sbi**](https://github.com/sbi-dev/sbi) | Neural Posterior Estimation using Normalizing Flows to learn the posterior p(theta|x) directly. |
-| **NPE-LSTM** | Neural Inference | [**sbi**](https://github.com/sbi-dev/sbi) | NPE with an LSTM embedding network to automatically extract features from time-series trajectories. |
-| **PNPE** | Neural Inference | Custom / **sbi** | Preconditioned NPE designed to improve convergence in models with complex identifiability constraints. |
+## What Is Included
 
-## Epidemic Models
-The repository includes four compartmental models of varying complexity to benchmark the inference algorithms: 
-1. **Model 1: SEIR Model** – Standard Susceptible-Exposed-Infectious-Recovered dynamics. (Brauer et al. [Mathematical models in epidemiology](https://link.springer.com/book/10.1007/978-1-4939-9828-9))
-2. **Model 2: Ebola Model** – A specialized model tailored to the transmission dynamics of the Ebola virus. (Legrand et al. [Understanding the dynamics of Ebola epidemics](https://pmc.ncbi.nlm.nih.gov/articles/PMC2870608/))
-3. **Model 3: SIRTEM Model** – A complex model considering multiple transmission routes and immunity states. (Azad et al. [SIRTEM: Spatially Informed Rapid Testing for Epidemic Modeling and Response to COVID-19](https://dl.acm.org/doi/10.1145/3555310))
-  
+- `episbi/`: a lightweight toolbox for epidemic-model SBI workflows.
+- `tutorials/`: Jupyter notebooks showing deterministic SEIR simulation and inference workflows.
+- `data/`, `notebooks/`, `temp_backup/`: supporting materials from the original manuscript repository.
+
+## Inference Methods
+
+The package and tutorials focus on four inference approaches:
+
+| Method | Type | Toolkit | Description |
+| --- | --- | --- | --- |
+| ABC | Approximate Bayesian computation | `pyabc` | Sequential Monte Carlo ABC for likelihood-free inference. |
+| NPE | Neural posterior estimation | `sbi` | Learns the posterior distribution `p(theta | x)` from simulations. |
+| NPE-LSTM | Neural posterior estimation | `sbi` + PyTorch | Uses an LSTM embedding network for time-series observations. |
+| PNPE | Preconditioned NPE | `pyabc` + `sbi` | Uses ABC samples to precondition NPE training. |
+
+## Package Features
+
+`episbi` currently provides:
+
+- `SBIEngine` for running ABC, NPE, NPE-LSTM, and PNPE workflows.
+- `LSTMembedding` for time-series embedding in neural posterior estimation.
+- `simulate_for_sbi` and `sample_prior` helpers for generating simulation datasets.
+- Posterior predictive evaluation utilities, including MAE, RMSE, 95% interval coverage, interval score, and weighted interval score.
+- `plot_prediction_windows` for visualizing inference and forecast windows.
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/geunsoojang/EpiSBI.git
+cd EpiSBI
+```
+
+Create an environment and install dependencies:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+On Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+Because this repository is organized as source code rather than a packaged PyPI release, run notebooks and scripts from the repository root, or add the repository root to your Python path.
+
+## Quick Start
+
+```python
+import numpy as np
+
+from episbi import SBIEngine, simulate_for_sbi
+from episbi.metric import evaluate_prediction_windows
+from episbi.utils import plot_prediction_windows
+
+engine = SBIEngine(device="cpu", batch_size=256)
+
+# Generate simulations from a user-defined prior and simulator.
+# thetas, xs = simulate_for_sbi(
+#     prior=prior,
+#     simulator=simulator,
+#     num_simulations=1000,
+#     total_days=100,
+# )
+
+# Fit NPE when simulated parameters and trajectories are available.
+# posterior, samples = engine.run_npe(
+#     obs_data=x_obs,
+#     prior=prior,
+#     thetas=thetas,
+#     xs=xs,
+#     num_samples=10000,
+# )
+
+# Evaluate externally generated posterior predictive trajectories.
+# prediction shape: (n_samples, time, n_outputs)
+metrics = evaluate_prediction_windows(
+    y_obs=np.zeros((100, 1)),
+    prediction=np.zeros((200, 100, 1)),
+    inference_days=90,
+    forecast_days=10,
+    output_names=["incidence"],
+)
+
+print(metrics)
+```
+
+## Tutorials
+
+The `tutorials/` directory contains example notebooks:
+
+| Notebook | Purpose |
+| --- | --- |
+| `01_deterministic_seir.ipynb` | Deterministic SEIR simulation workflow. |
+| `02_ABC_seir.ipynb` | ABC inference for the SEIR model. |
+| `02_npe_seir.ipynb` | Neural posterior estimation for SEIR. |
+| `02_npe_LSTM_seir.ipynb` | NPE with an LSTM embedding network. |
+| `02_pnpe_seir.ipynb` | Preconditioned NPE workflow. |
+| `02_sbi_seir.ipynb` | Combined SBI example workflow. |
+
+Start Jupyter from the repository root so notebook imports can find `episbi`:
+
+```bash
+jupyter notebook
+```
+
+## Repository Structure
+
+```text
+EpiSBI/
+|-- episbi/          # reusable SBI toolbox code
+|-- tutorials/       # tutorial notebooks
+|-- notebooks/       # manuscript and exploratory notebooks
+|-- data/            # example data
+|-- temp_backup/     # original supporting source files
+|-- README.md
+`-- requirements.txt
+```
 
 ## Citation
-Jang G, Candan KS, Chowell G. A comparative study of simulation-based inference methods for epidemic models with identifiability considerations. PLOS Computational Biology. 2026 Jun 2;22(6):e1014364.
+
+If you use this repository, please cite:
+
+Jang G, Candan KS, Chowell G. A comparative study of simulation-based inference methods for epidemic models with identifiability considerations. *PLOS Computational Biology*. 2026;22(6):e1014364.
