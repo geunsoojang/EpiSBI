@@ -70,21 +70,21 @@ from episbi.utils import plot_prediction_windows
 engine = SBIEngine(device="cpu", batch_size=256)
 
 # Generate simulations from a user-defined prior and simulator.
-# thetas, xs = simulate_for_sbi(
-#     prior=prior,
-#     simulator=simulator,
-#     num_simulations=1000,
-#     total_days=100,
-# )
+thetas, xs = simulate_for_sbi(
+     prior=prior,
+     simulator=simulator,
+     num_simulations=1000,
+     total_days=100,
+)
 
 # Fit NPE when simulated parameters and trajectories are available.
-# posterior, samples = engine.run_npe(
-#     obs_data=x_obs,
-#     prior=prior,
-#     thetas=thetas,
-#     xs=xs,
-#     num_samples=10000,
-# )
+posterior, samples = engine.run_npe(
+     obs_data=x_obs,
+     prior=prior,
+     thetas=thetas,
+     xs=xs,
+     num_samples=10000,
+)
 
 # Evaluate externally generated posterior predictive trajectories.
 # prediction shape: (n_samples, time, n_outputs)
