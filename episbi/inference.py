@@ -6,7 +6,7 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import pyabc
-from sbi.inference import NPE
+from sbi.inference import NPE, NRE
 from sbi.neural_nets import posterior_nn
 from .embedding import LSTMembedding
 
@@ -19,12 +19,25 @@ class SBIEngine:
     def _param_names(self, prior):
         return list(prior.names) if hasattr(prior, "names") else None
 
+    def _discrete_param_names(self, prior):
+        return list(prior.discrete_names) if hasattr(prior, "discrete_names") else []
+
     def _reorder_parameter_frame(self, values, param_names: Optional[Sequence[str]] = None):
         if param_names is None or not isinstance(values, pd.DataFrame):
             return values
         ordered = [name for name in param_names if name in values.columns]
         remaining = [name for name in values.columns if name not in ordered]
         return values[ordered + remaining]
+
+    def _resample_parameter_particles(self, values, weights, num_samples: int, random_state: int = 0):
+        if not isinstance(values, pd.DataFrame):
+            return values
+        weights = np.asarray(weights, dtype=float)
+        if weights.sum() <= 0:
+            weights = None
+        else:
+            weights = weights / weights.sum()
+        return values.sample(n=num_samples, replace=True, weights=weights, random_state=random_state).reset_index(drop=True)
 
     def _to_tensor(self, x):
         if isinstance(x, torch.Tensor):
@@ -75,10 +88,12 @@ class SBIEngine:
 
     def run_abc(self, obs_data, prior, simulator_func: Callable,
         num_simulations: int = 1000, population_size: int = 100, num_samples: int = 10000,
-        eps_alpha: float = 0.2, transition_scaling: float = 0.5, simulator_kwargs: Optional[Dict] = None):
+        eps_alpha: float = 0.2, transition_scaling: float = 0.5, simulator_kwargs: Optional[Dict] = None,
+        resample_seed: int = 0):
         print("[*] Running SMC-ABC...")
 
         param_names = self._param_names(prior)
+        discrete_param_names = self._discrete_param_names(prior)
         prior = prior.pyabc if hasattr(prior, "pyabc") else prior
         distance = pyabc.AdaptivePNormDistance(p=2, scale_function=pyabc.distance.std, all_particles_for_scale=True)
         obs_dict = self._obs_to_pyabc_dict(obs_data)
@@ -97,10 +112,17 @@ class SBIEngine:
         
         df, weights = history.get_distribution()
         df = self._reorder_parameter_frame(df, param_names)
-        kde = pyabc.transition.MultivariateNormalTransition()
-        kde.fit(df, weights)
-        samples = kde.rvs(num_samples)
-        samples = self._reorder_parameter_frame(samples, param_names)
+        if discrete_param_names:
+            samples = self._resample_parameter_particles(df, weights, num_samples, random_state=resample_seed)
+            for name in discrete_param_names:
+                if name in samples:
+                    samples[name] = samples[name].round().astype(int)
+        else:
+            kde = pyabc.transition.MultivariateNormalTransition()
+            kde.fit(df, weights)
+            samples = kde.rvs(num_samples)
+            samples = self._reorder_parameter_frame(samples, param_names)
+        
         return history, samples
 
     def run_npe(self, obs_data, prior=None, thetas=None, xs=None,
@@ -133,6 +155,31 @@ class SBIEngine:
             obs_data=obs_data, prior=prior, thetas=thetas, xs=xs, use_lstm=True, input_dim=input_dim, learning_rate=learning_rate,
             num_samples=num_samples, batch_size=batch_size, show_train_summary=show_train_summary)
 
+    def run_nre(self, obs_data, prior=None, thetas=None, xs=None,
+        learning_rate: float = 1e-3, num_samples: Optional[int] = None, batch_size: Optional[int] = None,
+        classifier=None, show_train_summary: bool = True):
+        batch_size = self.batch_size if batch_size is None else batch_size
+        prior = prior.sbi if hasattr(prior, "sbi") else prior
+        print(f"[*] Running NRE with batch size {batch_size}...")
+
+        thetas = self._to_tensor(thetas)
+        xs = self._to_tensor(xs)
+        x_obs = self._obs_to_tensor(obs_data)
+
+        inference_kwargs = {"prior": prior, "device": self.device}
+        if classifier is not None:
+            inference_kwargs["classifier"] = classifier
+        inference = NRE(**inference_kwargs)
+        density_estimator = inference.append_simulations(thetas, xs).train(
+            training_batch_size=batch_size, learning_rate=learning_rate, show_train_summary=show_train_summary
+        )
+        posterior = inference.build_posterior(density_estimator)
+        result = {"posterior": posterior, "density_estimator": density_estimator, "x_obs": x_obs}
+        if num_samples is not None and num_samples > 0:
+            result["samples"] = posterior.sample((num_samples,), x=x_obs)
+        return result
+
+    
     def run_pnpe(self, obs_data, prior, simulator_func: Callable,
         num_simulations: int = 10000, num_samples: int = 10000, batch_size: Optional[int] = None,
         population_size: int = 100, abc_fraction: float = 0.5, use_lstm: bool = False, input_dim: int = 1,

@@ -37,30 +37,47 @@ def sample_prior(prior, num_simulations: int, seed: int = 0):
     high = _to_numpy(prior.high).astype(np.float32)
     return rng.uniform(low, high, size=(num_simulations, low.size)).astype(np.float32)
 
+def _simulate_one(
+    theta,
+    simulator: Callable,
+    param_names: Optional[Sequence[str]] = None,
+    simulator_kwargs: Optional[dict] = None,
+    seed: Optional[int] = None,
+):
+    theta_input = _theta_to_input(theta, param_names)
+    kwargs = {} if simulator_kwargs is None else dict(simulator_kwargs)
+    if seed is not None and "seed" not in kwargs:
+        kwargs["seed"] = int(seed)
+    sim = simulator(theta_input, **kwargs)
+    return _sim_to_array(sim)
 
 def simulate_for_sbi(
     prior,
     simulator: Callable,
     num_simulations: int,
-    total_days: int,
     seed: int = 0,
     param_names: Optional[Sequence[str]] = None,
     simulator_kwargs: Optional[dict] = None,
+    n_jobs: int = 1,
+    backend: str = "loky",
+    verbose: int = 0,
 ):
 
-    if total_days <= 0:
-        raise ValueError("total_days must be positive.")
+    if n_jobs == 0:
+        raise ValueError("n_jobs must be nonzero.")
+        
     simulator_kwargs = {} if simulator_kwargs is None else simulator_kwargs
     if param_names is None and hasattr(prior, "names"):
         param_names = prior.names
 
     thetas = sample_prior(prior, num_simulations=num_simulations, seed=seed)
-    xs = []
-    for sim_id, theta in enumerate(thetas):
-        theta_input = _theta_to_input(theta, param_names)
-        sim = simulator(theta_input, total_days=total_days, **simulator_kwargs)
-        arr = _sim_to_array(sim)
-        if arr.shape[0] < total_days:
-            raise ValueError(f"Simulator output must contain at least {total_days} time points, got {arr.shape[0]}.")
-        xs.append(arr[:total_days])
+    if n_jobs == 1:
+        xs = [_simulate_one(theta, simulator, param_names, simulator_kwargs) for theta in thetas]
+    else:
+        try:
+            from joblib import Parallel, delayed
+        except ImportError as exc:
+            raise ImportError("simulate_for_sbi(n_jobs != 1) requires joblib.") from exc
+        xs = Parallel(n_jobs=n_jobs, backend=backend, verbose=verbose)(
+            delayed(_simulate_one)(theta, simulator, param_names, simulator_kwargs) for theta in thetas)
     return thetas, np.stack(xs).astype(np.float32)
