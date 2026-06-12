@@ -2,7 +2,7 @@
 
 Simulation-based inference tools and tutorials for epidemic models.
 
-This repository accompanies the manuscript *A comparative study of simulation-based inference methods for epidemic models with identifiability considerations* and also provides a reusable Python package, `episbi`, for running and evaluating simulation-based inference workflows.
+This repository accompanies the paper "*A comparative study of simulation-based inference methods for epidemic models with identifiability considerations*" and also provides a reusable Python package, `episbi`, for running and evaluating simulation-based inference workflows.
 
 ## What Is Included
 
