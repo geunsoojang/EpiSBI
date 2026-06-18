@@ -17,7 +17,7 @@ Jang G, Candan KS, Chowell G. A comparative study of simulation-based inference 
 
 ### Paper Goal
 
-The paper compares likelihood-free and neural simulation-based inference approaches for epidemic models, with emphasis on how model structure and parameter identifiability affect posterior inference.
+The paper compares likelihood-free and neural simulation-based inference approaches for epidemic models, with emphasis on how model identifiability affect posterior inference.
 
 ### Inference Methods Compared
 
@@ -32,9 +32,9 @@ The paper compares likelihood-free and neural simulation-based inference approac
 
 The manuscript materials include three compartmental epidemic models:
 
-- SEIR model for standard susceptible-exposed-infectious-recovered dynamics.
-- Ebola model tailored to the transmission dynamics of Ebola virus disease.
-- SIRTEM model for COVID-19 epidemic modeling with testing and spatially informed response structure.
+- Model1: SEIR model for standard susceptible-exposed-infectious-recovered dynamics.
+- Model2: Ebola model tailored to the transmission dynamics of Ebola virus disease.
+- Model3: SIRTEM model for COVID-19 epidemic modeling with testing and spatially informed response structure.
 
 ### Paper Materials
 
