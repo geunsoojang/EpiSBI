@@ -30,11 +30,11 @@ The paper compares likelihood-free and neural simulation-based inference approac
 
 ### Epidemic Models
 
-The manuscript materials include compartmental epidemic-model examples such as:
+The manuscript materials include three compartmental epidemic models:
 
 - SEIR model for standard susceptible-exposed-infectious-recovered dynamics.
-- Stochastic SEIR model for event-based epidemic simulation.
-- Extended stochastic SE1E2E3IR and SEIRD-style models for richer latent-stage or outcome structure.
+- Ebola model tailored to the transmission dynamics of Ebola virus disease.
+- SIRTEM model for COVID-19 epidemic modeling with testing and spatially informed response structure.
 
 ### Paper Materials
 
