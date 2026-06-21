@@ -155,8 +155,10 @@ The `tutorials/` directory contains notebook examples organized by model type an
 | `04-1_NPE_SEIAR.ipynb` | NPE inference for a deterministic SEIAR model with symptomatic and asymptomatic infections. |
 | `04-2_NPE_SEIAR.ipynb` | NPE inference for a deterministic SEIAR model where both symptomatic and asymptomatic infections contribute to transmission. |
 | `04-3_NPE_SEIRD.ipynb` | NPE inference for a deterministic SEIRD model with disease-induced deaths. |
-| `05_Custom_model.ipynb` | NRE inference with a notebook-defined stochastic SE1E2E3IR simulator inspired by the MV Hondius Andes virus stochastic scenario analysis (`arXiv:2606.08391`), using weekly incidence and `numba` acceleration. |
+| `05_Custom_model.ipynb` | NRE inference with a notebook-defined stochastic SE1E2E3IR simulator using weekly incidence and `numba` acceleration. |
 | `06_GPU.ipynb` | GPU-enabled NPE workflow showing how to run neural inference on CUDA when available. |
+
+The custom Hantavirus model in `05_Custom_model.ipynb` follows the model setting from *Cruise Ship-Associated Andes Virus Cluster aboard MV Hondius, 2026: A Stochastic Scenario Analysis* ([arXiv:2606.08391](https://arxiv.org/abs/2606.08391)).
 
 Start Jupyter from the repository root:
 
