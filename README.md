@@ -61,6 +61,18 @@ The manuscript materials include three compartmental epidemic models:
 - Posterior predictive evaluation metrics including MAE, RMSE, 95% interval coverage, interval score, and weighted interval score.
 - Plotting utilities for inference and forecast windows.
 
+### Workflow API Map
+
+| Step | Goal | Main APIs |
+| --- | --- | --- |
+| 1. Define a model | Use a built-in epidemic simulator or define a compartment model. | `episbi.models.deterministic_seir`, `episbi.models.stochastic_seir`, `episbi.models.stochastic_seird`, `episbi.models.stochastic_se1e2e3ir`, `episbi.models.compartment_model`, `episbi.models.Transition` |
+| 2. Define a prior | Keep parameter names and bounds in one object. | `episbi.prior.UniformPrior`, `episbi.prior.MixedPrior` |
+| 3. Simulate training data | Generate `(theta, x)` arrays for SBI training. | `episbi.simulation.simulate_for_sbi`, `episbi.simulation.sample_prior` |
+| 4. Fit inference | Run ABC, NPE, NPE-LSTM, NRE, or PNPE. | `SBIEngine.run_abc`, `SBIEngine.run_npe`, `SBIEngine.run_npe_lstm`, `SBIEngine.run_nre`, `SBIEngine.run_pnpe` |
+| 5. Generate posterior predictive samples | Re-simulate trajectories from posterior samples. | `episbi.forecasting.posterior_predictive_forecast`, `episbi.forecasting.run_posterior_forecast_evaluation` |
+| 6. Evaluate predictions | Compute trajectory summaries, WIS, interval score, RMSE, MAE, and coverage. | `episbi.metric.summarize_trajectories`, `episbi.metric.evaluate_trajectory`, `episbi.metric.evaluate_prediction_windows`, `episbi.metric.weighted_interval_score`, `episbi.metric.save_metrics`, `episbi.metric.summarize_metrics_by_output` |
+| 7. Plot checks | Draw posterior predictive checks and inference/forecast windows. | `episbi.utils.plot_prediction_windows`, `episbi.forecasting.plot_forecast_result` |
+
 ### Installation
 
 Clone the repository:
@@ -97,9 +109,11 @@ Run notebooks and scripts from the repository root so Python can find the local 
 ```python
 import numpy as np
 
-from episbi import SBIEngine, simulate_for_sbi
-from episbi.metric import evaluate_prediction_windows
+from episbi import SBIEngine
+from episbi.forecasting import run_posterior_forecast_evaluation
 from episbi.models import Transition, compartment_model
+from episbi.prior import UniformPrior
+from episbi.simulation import simulate_for_sbi
 
 engine = SBIEngine(device="cpu", batch_size=256)
 
@@ -111,29 +125,52 @@ model = compartment_model(
         Transition("I", "R", "gamma * I", name="I_to_R"),
     ],
     param_names=["beta", "sigma", "gamma"],
-    population=1000,
     initial_conditions={"S": 990, "E": 5, "I": 5, "R": 0},
     observed={"transitions": ["S_to_E"]},
     model_type="deterministic",
 )
 
-# Example simulator call.
-sim = model.simulate(
-    {"beta": 0.35, "sigma": 0.2, "gamma": 0.1},
-    total_days=100,
+prior = UniformPrior(
+    {
+        "beta": (0.1, 0.8),
+        "sigma": (0.05, 0.5),
+        "gamma": (0.05, 0.4),
+    }
 )
 
-# Posterior predictive trajectories can be evaluated in split windows.
-metrics = evaluate_prediction_windows(
-    y_obs=np.zeros((100, 1)),
-    prediction=np.zeros((200, 100, 1)),
+theta_true = np.array([0.35, 0.2, 0.1], dtype=np.float32)
+simulator_kwargs = {"population": 1000}
+y_obs = model(theta_true, total_days=100, **simulator_kwargs)["S_to_E"]
+
+thetas, xs = simulate_for_sbi(
+    prior,
+    model,
+    num_simulations=1000,
+    total_days=100,
+    simulator_kwargs=simulator_kwargs,
+)
+
+fit = engine.run_npe(
+    obs_data=y_obs,
+    prior=prior,
+    thetas=thetas,
+    xs=xs,
+    num_samples=1000,
+)
+
+result = run_posterior_forecast_evaluation(
+    posterior_samples=fit["samples"],
+    simulator=model,
+    y_obs=y_obs,
     inference_days=90,
     forecast_days=10,
+    param_names=prior.names,
     output_names=["incidence"],
+    n_samples=300,
+    simulator_kwargs=simulator_kwargs,
 )
 
-print(sim["observed"].shape)
-print(metrics)
+print(result["metrics"])
 ```
 
 ### Tutorials
