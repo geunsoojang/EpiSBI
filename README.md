@@ -100,9 +100,10 @@ Install dependencies:
 
 ```bash
 pip install -r requirements.txt
+pip install -e .
 ```
 
-Run notebooks and scripts from the repository root so Python can find the local `episbi` package.
+The editable install makes the local `episbi` package available to scripts and notebooks while you work from this repository.
 
 ### Quick Start
 
